@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'jacoco'
 }
 
-group 'org.jetbrains.ktserver'
+group 'org.jetbrains.javaclient'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
@@ -23,4 +24,27 @@ test {
 task run(dependsOn: classes, type: JavaExec) {
     main = "Launcher"
     classpath = sourceSets.main.runtimeClasspath
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+    reportsDir = file("$buildDir/JacocoReports")
+}
+
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    allprojects.each {
+        sourceSets((SourceSet)it.sourceSets["main"])
+    }
+
+    reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled true
+    }
+}
+
+codeCoverageReport.dependsOn {
+    test
 }
